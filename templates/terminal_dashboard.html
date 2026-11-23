@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block content %}
+<div class="page-head"><div><div class="eyebrow">OWL STORE · PAY TERMINAL</div><h1>Terminal ready · {{ terminal_user.username }}</h1></div><form method="post" action="{{ url_for('terminal_logout') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="btn light">Logout</button></form></div>
+<section class="panel" style="text-align:center;padding:3rem 1rem"><h2>Waiting for Cashfree checkout…</h2><p id="message" class="muted" role="status">Create a bill in the normal dashboard, then click Pay online with Cashfree. Checkout opens here automatically.</p></section>
+<script>
+const nextUrl={{ url_for('terminal_next_payment')|tojson }};
+let navigating=false;
+async function poll(){if(navigating)return;try{const r=await fetch(nextUrl,{cache:'no-store',credentials:'same-origin'});if(r.redirected){location.assign({{ url_for('terminal_login')|tojson }});return;}if(!r.ok)return;const d=await r.json();if(d.url){navigating=true;location.assign(d.url);}}catch(e){document.getElementById('message').textContent='Connection interrupted; reconnecting…';}}
+poll();setInterval(poll,2000);
+</script>{% endblock %}
